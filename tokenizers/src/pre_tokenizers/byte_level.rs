@@ -164,7 +164,9 @@ impl Decoder for ByteLevel {
                     .unwrap_or_else(|| t.as_bytes().to_vec())
             })
             .collect::<Vec<u8>>();
-        Ok(vec![String::from_utf8_lossy(&toks).to_string()])
+        let bytestr: Vec<String> = toks.iter().map(|i| i.to_string() + ",").collect();
+        // Ok(vec![String::from_utf8_lossy(&toks).to_string()])
+        Ok(bytestr)
     }
 }
 

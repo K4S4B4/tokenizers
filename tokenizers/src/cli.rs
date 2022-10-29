@@ -31,6 +31,12 @@ fn shell(matches: &ArgMatches) -> Result<()> {
     let mut handle = stdin.lock();
     let mut buffer = String::new();
 
+    for id in 0..50257 {
+        let mut ids: Vec<u32> = vec![];
+        ids.push(id);
+        println!("/*{}*/\t{}", id, tokenizer.decode(ids, true).unwrap() );
+    }
+    
     loop {
         buffer.clear();
 
