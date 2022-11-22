@@ -9,6 +9,9 @@ use tokenizers::pre_tokenizers::byte_level::ByteLevel;
 use tokenizers::tokenizer::{AddedToken, Result};
 use tokenizers::Tokenizer;
 
+use std::fs::File;
+use std::io::{self, Read, Write, BufReader, BufWriter};
+
 fn shell(matches: &ArgMatches) -> Result<()> {
     let vocab = matches
         .value_of("vocab")
@@ -35,6 +38,7 @@ fn shell(matches: &ArgMatches) -> Result<()> {
         let mut ids: Vec<u32> = vec![];
         ids.push(id);
         println!("/*{}*/\t{}", id, tokenizer.decode(ids, true).unwrap() );
+
     }
     
     loop {
