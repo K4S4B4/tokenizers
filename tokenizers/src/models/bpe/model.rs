@@ -164,6 +164,9 @@ impl BpeBuilder {
                 let new_id = vocab
                     .get(&new_token)
                     .ok_or(Error::MergeTokenOutOfVocabulary(new_token))?;
+
+                println!("{}U, {}U, {}U,", a_id, b_id, new_id);
+                    
                 Ok(((*a_id, *b_id), (i as u32, *new_id)))
             })
             .collect::<Result<MergeMap>>()?;
