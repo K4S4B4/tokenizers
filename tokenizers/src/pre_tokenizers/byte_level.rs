@@ -115,16 +115,22 @@ impl PreTokenizer for ByteLevel {
         let re_ref: &SysRegex = &RE;
         pretokenized.split(|_, mut normalized| {
             if self.add_prefix_space && !normalized.get().starts_with(' ') {
+                println!("[AK] prepend space!");
+                println!("[AK] Normalized:{}", normalized.get());
                 normalized.prepend(" ");
             }
             if self.use_regex {
+                println!("[AK] use regex!");
+                println!("[AK] Normalized:{}", normalized.get());
                 normalized.split(re_ref, SplitDelimiterBehavior::Isolated)
             } else {
                 Ok(vec![normalized])
             }
         })?;
+        println!("[AK] pretokenized.normalize!");
         pretokenized.normalize(|normalized| {
             let s = normalized.get();
+            println!("[AK] normalized.get:{}", normalized.get());
             let mut transformations: Vec<(char, isize)> = Vec::with_capacity(s.len());
             let mut i = 0;
             for cur_char in s.chars() {

@@ -157,7 +157,12 @@ impl PreTokenizedString {
                     let offsets = normalized.offsets_original();
                     let offset_converter = &offset_converter;
 
+                    println!("[AK] into_encoding normalized:{}", normalized.get());
+
                     split.tokens.unwrap().into_iter().map(move |token| {
+                        println!("[AK] into_encoding token.id:{}", token.id);
+                        println!("[AK] into_encoding token.value:{}", token.value);
+
                         let mut offsets = normalized
                             .convert_offsets(Range::Normalized(token.offsets.0..token.offsets.1))
                             .map_or(token.offsets, |range| {

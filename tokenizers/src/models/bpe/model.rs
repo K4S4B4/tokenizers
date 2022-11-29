@@ -164,6 +164,9 @@ impl BpeBuilder {
                 let new_id = vocab
                     .get(&new_token)
                     .ok_or(Error::MergeTokenOutOfVocabulary(new_token))?;
+
+                // println!("{}U, {}U, {}U,", a_id, b_id, new_id);
+
                 Ok(((*a_id, *b_id), (i as u32, *new_id)))
             })
             .collect::<Result<MergeMap>>()?;
@@ -339,6 +342,7 @@ impl BPE {
     }
 
     fn merge_word(&self, w: &str) -> Result<Word> {
+        println!("[AK] merge_word:{}", w);
         let mut indices = w.char_indices().map(|(idx, _)| idx).peekable();
         let mut word = Word::with_capacity(w.len());
         let mut unk: Option<(u32, usize)> = None;
@@ -353,6 +357,8 @@ impl BPE {
                 Cow::Borrowed(&w[i..])
             };
             let byte_len = s.len();
+
+            println!("[AK] merge_word s:{}", s);
 
             // Add the `continuing_subword_prefix` if relevant
             if !is_first {
@@ -372,7 +378,10 @@ impl BPE {
                     word.add(unk_id, unk_len);
                     unk = None;
                 }
+
+                println!("[AK] merge_word id:{}", id);
                 word.add(*id, byte_len);
+
             } else if let Some(unk_token) = &self.unk_token {
                 unk = match (unk, self.fuse_unk) {
                     (Some((unk_id, unk_len)), true) => {
@@ -416,10 +425,12 @@ impl BPE {
 
     fn tokenize_with_cache(&self, sequence: &str) -> Result<Vec<Token>> {
         if let Some(ref hit) = self.cache.as_ref().and_then(|c| c.get(sequence)) {
+            println!("[AK] hit");
             Ok(self.word_to_tokens(hit).collect())
         } else {
             let word = self.merge_word(sequence)?;
             let ret = self.word_to_tokens(&word).collect();
+            println!("[AK] word");
             if let Some(ref cache) = self.cache {
                 cache.set(sequence.to_owned(), word);
             }
@@ -445,8 +456,10 @@ impl Model for BPE {
         }
 
         if self.dropout.is_none() {
+            println!("[AK] tokenize_with_cache!");
             self.tokenize_with_cache(sequence)
         } else {
+            println!("[AK] word_to_tokens!");
             let word = self.merge_word(sequence)?;
             Ok(self.word_to_tokens(&word).collect())
         }

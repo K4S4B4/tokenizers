@@ -157,6 +157,7 @@ impl Word {
                 .enumerate()
                 .filter_map(|(index, window)| {
                     let pair = (window[0].c, window[1].c);
+                    println!("[AK] merge_all filter_map:{}, {}", pair.0, pair.1);
                     merges.get(&pair).map(|m| Merge {
                         pos: index,
                         rank: m.0,
@@ -170,16 +171,21 @@ impl Word {
                 .map(|d| thread_rng().gen::<f32>() < d)
                 .unwrap_or(false)
             {
+                println!("[AK] merge_all skip:{}, {}, {}", top.new_id, top.pos, top.rank);
                 skip.push(top);
             } else {
+                println!("[AK] merge_all working on top {} at {} rank {}", self.symbols[top.pos].c, top.pos, top.rank);
+
                 // Re-insert the skipped elements
                 queue.extend(skip.drain(..));
 
                 if self.symbols[top.pos].len == 0 {
+                    println!("[AK] merge_all len==0:{}", self.symbols[top.pos].c);
                     continue;
                 }
                 // Do nothing if we are the last symbol
                 if self.symbols[top.pos].next == -1 {
+                    println!("[AK] merge_all next==-1:{}", self.symbols[top.pos].c);
                     continue;
                 }
 
@@ -192,8 +198,11 @@ impl Word {
                     .get(&target_new_pair)
                     .map_or(false, |(_, new_id)| *new_id == top.new_id)
                 {
+                    println!("[AK] merge_all expired queue entry!");
                     continue;
                 }
+
+                println!("[AK] merge_all merge_with:{} and {} to {}", self.symbols[top.pos].c, self.symbols[next_pos].c, top.new_id);
 
                 // Otherwise, let's merge
                 self.symbols[top.pos].merge_with(&right, top.new_id);
@@ -212,6 +221,9 @@ impl Word {
                     let prev_symbol = self.symbols[prev];
                     let new_pair = (prev_symbol.c, current.c);
                     if let Some((rank, new_id)) = merges.get(&new_pair) {
+
+                        println!("[AK] merge_all new_pair (prev):{} and {} to {}", new_pair.0, new_pair.1, new_id);
+
                         queue.push(Merge {
                             pos: current.prev as usize,
                             rank: *rank,
@@ -226,6 +238,9 @@ impl Word {
                     let next_symbol = self.symbols[next];
                     let new_pair = (current.c, next_symbol.c);
                     if let Some((rank, new_id)) = merges.get(&new_pair) {
+
+                        println!("[AK] merge_all new_pair (next):{} and {} to {}", new_pair.0, new_pair.1, new_id);
+
                         queue.push(Merge {
                             pos: top.pos,
                             rank: *rank,
